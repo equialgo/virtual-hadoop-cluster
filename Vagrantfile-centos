@@ -1,27 +1,31 @@
 $master_script = <<SCRIPT
 #!/bin/bash
 
-apt-get install curl -y
+# Setup some vars
+yum install curl -y
 REPOCM=${REPOCM:-5.1.0}
 CM_REPO_HOST=${CM_REPO_HOST:-archive.cloudera.com}
-CM_MAJOR_VERSION=$(echo $REPOCM | sed -e 's/\..*//')
+CM_MAJOR_VERSION=$(echo $REPOCM | sed -e 's/\\..*//')
 CM_MINOR_VERSION=$(echo $REPOCM | sed -e 's/^/cm/')
-OS_CODENAME=$(lsb_release -sc)
-OS_DISTID=$(lsb_release -si | tr '[A-Z]' '[a-z]')
-if [ $CM_MAJOR_VERSION -ge 4 ]; then
-  cat > /etc/apt/sources.list.d/cloudera-$REPOCM.list <<EOF
-deb [arch=amd64] http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-$CM_MINOR_VERSION contrib
-deb-src http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-$CM_MINOR_VERSION contrib
+OS_DISTID="redhat"
+OS_VERSION=$(cat /etc/redhat-release | awk '{print $3}' | sed 's/\\..//')
+OS_ARCH=$(arch)
+
+# Setup the Cloudera repo
+cat > /etc/yum.repos.d/cloudera-$REPOCM.repo <<EOF
+[cloudera-manager]
+# Packages for Cloudera Manager, Version 5, on RedHat or CentOS 6 x86_64
+name=Cloudera Manager
+baseurl=http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_VERSION/$OS_ARCH/cm/$CM_MAJOR_VERSION/
+gpgkey = http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_VERSION/$OS_ARCH/cm/RPM-GPG-KEY-cloudera
+gpgcheck = 1
 EOF
-curl -s http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm/archive.key > key
-apt-key add key
-rm key
-fi
-apt-get update
-export DEBIAN_FRONTEND=noninteractive
-apt-get -q -y --force-yes install oracle-j2sdk1.7 cloudera-manager-server-db cloudera-manager-server cloudera-manager-daemons
-service cloudera-scm-server-db initdb
-service cloudera-scm-server-db start
+
+# Import keys, install packagesm start services
+rpm --import http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_VERSION/$OS_ARCH/cm/RPM-GPG-KEY-cloudera
+yum install -y oracle-j2sdk1.7 cloudera-manager-server-db-2 cloudera-manager-server cloudera-manager-daemons
+service cloudera-scm-server-db-2 initdb
+service cloudera-scm-server-db-2 start
 service cloudera-scm-server start
 SCRIPT
 
@@ -42,8 +46,8 @@ SCRIPT
 Vagrant.configure("2") do |config|
 
   # Define base image
-  config.vm.box = "precise64"
-  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+  config.vm.box = "puppetlabs/centos-6.5-64-puppet"
+  config.vm.box_url = "https://vagrantcloud.com/puppetlabs/centos-6.5-64-puppet"
 
   # Manage /etc/hosts on host and VMs
   config.hostmanager.enabled = false
