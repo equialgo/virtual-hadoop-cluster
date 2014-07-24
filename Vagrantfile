@@ -2,16 +2,16 @@ $master_script = <<SCRIPT
 #!/bin/bash
 
 apt-get install curl -y
-REPOCM=${REPOCM:-cm5}
+REPOCM=${REPOCM:-5.1.0}
 CM_REPO_HOST=${CM_REPO_HOST:-archive.cloudera.com}
-CM_MAJOR_VERSION=$(echo $REPOCM | sed -e 's/cm\\([0-9]\\).*/\\1/')
-CM_VERSION=$(echo $REPOCM | sed -e 's/cm\\([0-9][0-9]*\\)/\\1/')
+CM_MAJOR_VERSION=$(echo $REPOCM | sed -e 's/\..*//')
+CM_MINOR_VERSION=$(echo $REPOCM | sed -e 's/^/cm/')
 OS_CODENAME=$(lsb_release -sc)
 OS_DISTID=$(lsb_release -si | tr '[A-Z]' '[a-z]')
 if [ $CM_MAJOR_VERSION -ge 4 ]; then
   cat > /etc/apt/sources.list.d/cloudera-$REPOCM.list <<EOF
-deb [arch=amd64] http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-$REPOCM contrib
-deb-src http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-$REPOCM contrib
+deb [arch=amd64] http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-$CM_MINOR_VERSION contrib
+deb-src http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-$CM_MINOR_VERSION contrib
 EOF
 curl -s http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm/archive.key > key
 apt-key add key
