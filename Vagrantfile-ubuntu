@@ -47,9 +47,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
     node.vm.network :private_network, ip: "192.168.33.11"
     node.vm.hostname = "hadoop-master"
-    node.vm.provision :shell, path: "scripts-ubuntu\provision_hosts.sh"
+    node.vm.provision :shell, path: "scripts-ubuntu/provision_hosts.sh"
     node.vm.provision :hostmanager
-    node.vm.provision :shell, path: "scripts-ubuntu\provision_master.sh"
+    node.vm.provision :shell, path: "scripts-ubuntu/provision_master.sh"
   end
 
   worker_nodes.each_with_index do |node, index|
@@ -60,7 +60,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
       n.vm.network :private_network, ip: "192.168.33.#{12 + index}"
       n.vm.hostname = "hadoop-#{node.to_s}"
-      n.vm.provision :shell, path: "scripts-ubuntu\provision_hosts.sh"
+      n.vm.provision :shell, path: "scripts-ubuntu/provision_hosts.sh"
       n.vm.provision :hostmanager
     end
   end
