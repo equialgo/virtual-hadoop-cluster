@@ -60,7 +60,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
       n.vm.network :private_network, ip: "192.168.33.#{12 + index}"
       n.vm.hostname = "hadoop-#{node.to_s}"
-      n.vm.provision :shell, path: “scripts-centos\provision_hosts.sh"
+      n.vm.provision :shell, path: "scripts-centos\provision_hosts.sh"
       n.vm.provision :hostmanager
       n.vm.provision :shell, path: "scripts-centos\provision_worker.sh"
     end
