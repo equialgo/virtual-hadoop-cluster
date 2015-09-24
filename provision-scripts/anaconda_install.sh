@@ -32,7 +32,7 @@ echo "creating yarn user directory on hdfs"
 ssh $sshUser@$masterAddress "sudo su hdfs -c 'hdfs dfs -mkdir /user/yarn'; sudo su hdfs -c 'hdfs dfs -chown yarn:yarn /user/yarn'"
 echo "rsync-ing file to master"
 rsync $anacondafile $sshUser@$masterAddress:/tmp/anaconda.sh
-echo "installing anaconda" 
+echo "installing anaconda on master" 
 ssh $sshUser@$masterAddress "sudo chown vagrant '/tmp/anaconda.sh';sudo chmod 775 '/tmp/anaconda.sh';bash /tmp/anaconda.sh -b;$hostScriptPathComment$toSuC" 
 ssh $sshUser@$masterAddress "sudo chown yarn:hadoop '/tmp/anaconda.sh';sudo chmod 775 '/tmp/anaconda.sh';sudo su yarn -c 'bash /tmp/anaconda.sh -b';sudo su yarn -c '$hostScriptPathComment';sudo su yarn -c '$toSuC'"
 
@@ -41,6 +41,6 @@ for node in $listOfNodes
 do
   echo "rsync-ing file to $node"
   rsync $anacondafile $sshUser@$node:/tmp/anaconda.sh
-  echo "installing anaconda"
+  echo "installing anaconda on $node"
   ssh $sshUser@$node "sudo chown yarn:hadoop '/tmp/anaconda.sh';sudo chmod 775 '/tmp/anaconda.sh';sudo su yarn -c 'bash /tmp/anaconda.sh -b';sudo su yarn -c '$hostScriptPathComment';sudo su yarn -c '$toSuC'"
 done
